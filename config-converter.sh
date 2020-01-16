@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Declaration of node variables
-LICENSE_KEY='\\\nLICENSE_KEY\\'
 CHASSIS_ID="CHASSIS_ID"
 HOSTNAME="HOSTNAME"
 IP_ADDRESS="IP_ADDRESS"
@@ -14,10 +13,20 @@ SSH_KEY='SSH_KEY'
 SSH_KEY_LENGTH="SSH_KEY_LENGTH"
 PORT_SLOT="PORT_SLOT"
 PORT_PORT="PORT_PORT"
+LICENSE_KEY=""
 
 # Script input arguments
 BASE_FILE=$1
 PLATFORM=$2
+
+# Variables required to retrieve license key
+LICENSE_KEY_FILE="license.txt"
+NEW_LINE='\\n'
+
+# Retrieve license key from file
+while read -r line; do
+	LICENSE_KEY=${LICENSE_KEY}${line}${NEW_LINE}
+done < ${LICENSE_KEY_FILE}
 
 # Validation of input arguments
 # If 2 arguments ar given
@@ -64,7 +73,7 @@ echo "Changing IP address"
 sed -i "0,/.*ip address.*/s/\(.*ip address\).*/\1 ${IP_ADDRESS} ${IP_MASK}/" ${TARGET_FILE}
 # Change SSH key
 echo "Changing SSH keys"
-sed -i -e "/ssh key.*/,/len.*type v2-rsa/c\    ssh key ${SSH_KEY}\n len ${SSH_KEY_LENGTH} type v2-rsa" ${TARGET_FILE}
+sed -i -e "/ssh key .*/,/len.*type v2-rsa/c\    ssh key ${SSH_KEY}\n len ${SSH_KEY_LENGTH} type v2-rsa" ${TARGET_FILE}
 # Add user account
 echo "Changing administrator user account"
 sed -i "0,/ administrator.*/s/\( administrator\).*/\1 ${USERNAME} password ${PASSWORD} ftp/" ${TARGET_FILE}
